@@ -9,6 +9,7 @@ pygments: true
 # Themes are encouraged to use these universal variables
 # so be sure to set them if your theme uses them.
 title: it-spir.it
+description: "Don't panic, use python!"
 tagline:
 author:
   name: Thomas Massmann
