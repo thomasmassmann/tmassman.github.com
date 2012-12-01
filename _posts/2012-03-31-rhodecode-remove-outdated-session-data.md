@@ -5,7 +5,7 @@ description: "RhodeCode uses Beaker for session management. By default the
               Beaker backend is set to file storage. Cleaning up those files
               by time is necessary."
 category:
-tags: []
+tags: [Mercurial, RhodeCode, Monitoring]
 ---
 {% include JB/setup %}
 
