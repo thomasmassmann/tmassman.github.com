@@ -3,7 +3,7 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>Plone: Move instance to another host without downtime</title>
+    <title>RhodeCode: remove outdated session data</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -12,16 +12,16 @@
     <!-- Open Graph tags -->
                 
                                 <meta property="og:type" content="article"/>
-            <meta property="og:title" content="Plone: Move instance to another host without downtime"/>
-            <meta property="og:url" content="http://it-spir.it/plone-move-instance-to-another-host-without-downtime.html"/>
-            <meta property="og:description" content="Sometimes it might be necessary to move a Plone instance to another host. This article describes how do this without almost any downtime."/>
+            <meta property="og:title" content="RhodeCode: remove outdated session data"/>
+            <meta property="og:url" content="/blog/2012/03/31/rhodecode-remove-outdated-session-data/"/>
+            <meta property="og:description" content="RhodeCode uses Beaker for session management. By default the Beaker backend is set to file storage. Cleaning up those files by time is necessary."/>
         
         <!-- Bootstrap -->
-            <link rel="stylesheet" href="http://it-spir.it/theme/css/bootstrap.min.css" type="text/css"/>
-        <link href="http://it-spir.it/theme/css/font-awesome.min.css" rel="stylesheet">
-    <link href="http://it-spir.it/theme/css/bootstrap-glyphicons.css" rel="stylesheet">
-    <link href="http://it-spir.it/theme/css/pygments.css" rel="stylesheet">
-    <link rel="stylesheet" href="http://it-spir.it/theme/css/style.css" type="text/css"/>
+            <link rel="stylesheet" href="/theme/css/bootstrap.min.css" type="text/css"/>
+        <link href="/theme/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/theme/css/bootstrap-glyphicons.css" rel="stylesheet">
+    <link href="/theme/css/pygments.css" rel="stylesheet">
+    <link rel="stylesheet" href="/theme/css/style.css" type="text/css"/>
     <!-- JavaScript plugins (requires jQuery) -->
     <script src="http://code.jquery.com/jquery.js"></script>
 
@@ -43,7 +43,7 @@
             <ul class="nav navbar-nav">
                                                                                                 </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="http://it-spir.it/archives.html"><i class="icon-th-list"></i>Archives</a></li>
+                <li><a href="/archives.html"><i class="icon-th-list"></i>Archives</a></li>
             </ul>
         </div>
         <!-- /.navbar-collapse -->
@@ -57,10 +57,10 @@
         <article>
             <header class="page-header">
                 <h1>
-                    <a href="http://it-spir.it/plone-move-instance-to-another-host-without-downtime.html"
+                    <a href="/blog/2012/03/31/rhodecode-remove-outdated-session-data/"
                        rel="bookmark"
-                       title="Permalink to Plone: Move instance to another host without downtime">
-                        Plone: Move instance to another host without downtime
+                       title="Permalink to RhodeCode: remove outdated session data">
+                        RhodeCode: remove outdated session data
                     </a>
                 </h1>
             </header>
@@ -70,74 +70,65 @@
                         <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="icon-calendar"></i>Di 03 April 2012
+        <i class="icon-calendar"></i>Sa 31 März 2012
     </span>
                     
             
     
     <span class="label label-default">Tags</span>
-	<a href="http://it-spir.it/tag/nginx.html">Nginx</a>
+	<a href="/tag/mercurial.html">Mercurial</a>
             /
-    	<a href="http://it-spir.it/tag/plone.html">Plone</a>
+    	<a href="/tag/rhodecode.html">RhodeCode</a>
+            /
+    	<a href="/tag/monitoring.html">Monitoring</a>
         </footer><!-- /.post-info -->                    </div>
                 </div>
-                <p>At <a class="reference external" href="http://propertyshelf.com">Propertyshelf</a> we're hosting a lot of Plone sites. Therefor we
-use virtual machines. When sites within an instance grow, it might be necessary
-to add or extend some components, like adding more ZEO clients or caching
-(using Varnish or Squid). But what if the virtual machines don't have enough
-power to handle this? Then those Plone instances have to be migrated to
-another, more powerful machine.</p>
-<p>The problem then is to do this without any downtime. Of course you first have
-to create a copy of the existing Plone instance on the new machine, create a
-snapshot backup of all the related data, and restore this data on the new
-machine. But what about the connected domains? The IP addresses differ (if you
-don't use one webserver that does all the domain handling). It can take up to
-several hours to update all the domains on the root DNS servers. But you want
-your sites online, with up to date data.</p>
-<div class="section" id="nginx-configuration-proxy-pass">
-<h2>Nginx configuration: proxy_pass</h2>
-<p>We're using Nginx as webserver for several reasons (of course Apache does the
-job as well). So the following examples are taken from our Nginx config.</p>
-<p>Imagine you have the following config on your actual server:</p>
+                <p><strong>RhodeCode uses Beaker for session management. By default the Beaker backend is
+set to file storage. Cleaning up those files by time is necessary.</strong></p>
+<p>We use <a class="reference external" href="http://rhodecode.org/">RhodeCode</a> for our internal
+<a class="reference external" href="http://mercurial.selenic.com/">Mercurial</a> repositories. It's great for what it
+does: user and group management, repository groups, etc.</p>
+<p>But when I looked at our server today I was kind of shocked about the inode
+usage on one of our partitions. Checking out the Munin graphs I realized that
+it had something todo with our repos. But the repository folder wasn't that
+big, only about 160MB. So I was looking for the inode usage:</p>
 <pre class="literal-block">
-server {
-  listen ip-of-actual-server:80;
-  server_name your-domain.com;
-  location / {
-    proxy_pass http://127.0.0.1:8080/VirtualHostBase/http/your-domain.com:80/your-site/VirtualHostRoot/;
-  }
-}
+$ find /opt/repositories/ -type f | wc -l
+14110
 </pre>
-<p>On your new server, add the same config. The only thing that changes is the IP
-address:</p>
+<p>That's not too much. Also because df shows a usage of about 500.000 inodes. Ok,
+checking the RhodeCode directory:</p>
 <pre class="literal-block">
-server {
-  listen ip-of-new-server:80;
-  server_name your-domain.com;
-  location / {
-    proxy_pass http://127.0.0.1:8080/VirtualHostBase/http/your-domain.com:80/your-site/VirtualHostRoot/;
-  }
-}
+$ find /opt/rhodecode/ -type f | wc -l
+483992
 </pre>
-<p>Now, on your old server, adjust the config for your domain. Use the proxy_pass
-directive to point to your new server. The important part is the
-proxy_set_header directive:</p>
+<p>Yes! But wait. Where does all the files come from?</p>
+<p>RhodeCode uses Beaker for session management. And by default, file storage is
+used. This isn't that bad, but from the Beaker documentation you can see that
+it could be:</p>
+<blockquote>
+Beaker does not automatically delete expired or old cookies on any of its
+back-ends. This task is left up to the developer based on how sessions are
+being used, and on what back-end. The database backend records the last
+accessed time as a column in the database so a script could be run to delete
+session rows in the database that haven’t been used in a long time.</blockquote>
+<p>So for the file backend that means that all the session files are kept.
+Forever!</p>
+<p>But help is here! You can remove outdated session files with a simple command:</p>
 <pre class="literal-block">
-server {
-  listen ip-of-actual-server:80;
-  server_name your-domain.com;
-  location / {
-    proxy_pass          http://your-new-server;
-    proxy_redirect      off;
-    proxy_set_header    Host $host;
-  }
-}
+$ find /opt/rhodecode/data/sessions -mtime +3 -exec rm {} \;
 </pre>
-<p>That's it. Now you can move your instance, restart Nginx and update your DNS
-settings. It's save to remove the config on the old server after about one
-week. Then all the root DNS servers should be updated and have the new IP
-address for your domain.</p>
-</div>
+<p>This removes all the session files older than 3 days. The result is amazing:</p>
+<pre class="literal-block">
+$ find /opt/rhodecode/data/session/ -type f | wc -l
+4528
+</pre>
+<p>If you're lazy like me, simply add a cronjob and let your system do the rest:</p>
+<pre class="literal-block">
+# m h  dom mon dow   command
+0 1 1 * * find /opt/rhodecode/apps/propertyshelf/data/sessions -type f -mtime +3 -exec rm {} \;
+</pre>
+<p>This removes old session files on every 1st of a month at 1:00am.</p>
 
             </div>
             <!-- /.entry-content -->
@@ -168,45 +159,45 @@ address for your domain.</p>
                             
             
                                                                                                 
-            <li class="list-group-item"><a href="http://it-spir.it/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
+            <li class="list-group-item"><a href="/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
                             <li class="list-group-item tag-1">
-                    <a href="http://it-spir.it/tag/plone.html">
+                    <a href="/tag/plone.html">
                         Plone
                     </a>
                 </li>
                             <li class="list-group-item tag-4">
-                    <a href="http://it-spir.it/tag/nginx.html">
-                        Nginx
-                    </a>
-                </li>
-                            <li class="list-group-item tag-4">
-                    <a href="http://it-spir.it/tag/rhodecode.html">
-                        RhodeCode
-                    </a>
-                </li>
-                            <li class="list-group-item tag-4">
-                    <a href="http://it-spir.it/tag/monitoring.html">
-                        Monitoring
-                    </a>
-                </li>
-                            <li class="list-group-item tag-4">
-                    <a href="http://it-spir.it/tag/mercurial.html">
-                        Mercurial
-                    </a>
-                </li>
-                            <li class="list-group-item tag-4">
-                    <a href="http://it-spir.it/tag/python.html">
+                    <a href="/tag/python.html">
                         Python
                     </a>
                 </li>
                             <li class="list-group-item tag-4">
-                    <a href="http://it-spir.it/tag/macos.html">
+                    <a href="/tag/mercurial.html">
+                        Mercurial
+                    </a>
+                </li>
+                            <li class="list-group-item tag-4">
+                    <a href="/tag/buildout.html">
+                        Buildout
+                    </a>
+                </li>
+                            <li class="list-group-item tag-4">
+                    <a href="/tag/macos.html">
                         MacOS
                     </a>
                 </li>
                             <li class="list-group-item tag-4">
-                    <a href="http://it-spir.it/tag/buildout.html">
-                        Buildout
+                    <a href="/tag/rhodecode.html">
+                        RhodeCode
+                    </a>
+                </li>
+                            <li class="list-group-item tag-4">
+                    <a href="/tag/monitoring.html">
+                        Monitoring
+                    </a>
+                </li>
+                            <li class="list-group-item tag-4">
+                    <a href="/tag/nginx.html">
+                        Nginx
                     </a>
                 </li>
                     </ul>
@@ -216,9 +207,9 @@ address for your domain.</p>
 </div>
 
 <!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src="http://it-spir.it/theme/js/bootstrap.min.js"></script>
+<script src="/theme/js/bootstrap.min.js"></script>
 
 <!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
-<script src="http://it-spir.it/theme/js/respond.min.js"></script>
+<script src="/theme/js/respond.min.js"></script>
 </body>
 </html>

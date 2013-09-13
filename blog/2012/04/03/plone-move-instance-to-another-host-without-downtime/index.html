@@ -3,7 +3,7 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>Buildout fails on Mac with Xcode 4 installed</title>
+    <title>Plone: Move instance to another host without downtime</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -12,16 +12,16 @@
     <!-- Open Graph tags -->
                 
                                 <meta property="og:type" content="article"/>
-            <meta property="og:title" content="Buildout fails on Mac with Xcode 4 installed"/>
-            <meta property="og:url" content="http://it-spir.it/buildout-fails-on-mac-with-xcode-4-installed.html"/>
-            <meta property="og:description" content="Installing Apple's Xcode 4 can cause some trouble when compiling Zope packages via buildout. This article shows the solution for this problem."/>
+            <meta property="og:title" content="Plone: Move instance to another host without downtime"/>
+            <meta property="og:url" content="/blog/2012/04/03/plone-move-instance-to-another-host-without-downtime/"/>
+            <meta property="og:description" content="Sometimes it might be necessary to move a Plone instance to another host. This article describes how do this without almost any downtime."/>
         
         <!-- Bootstrap -->
-            <link rel="stylesheet" href="http://it-spir.it/theme/css/bootstrap.min.css" type="text/css"/>
-        <link href="http://it-spir.it/theme/css/font-awesome.min.css" rel="stylesheet">
-    <link href="http://it-spir.it/theme/css/bootstrap-glyphicons.css" rel="stylesheet">
-    <link href="http://it-spir.it/theme/css/pygments.css" rel="stylesheet">
-    <link rel="stylesheet" href="http://it-spir.it/theme/css/style.css" type="text/css"/>
+            <link rel="stylesheet" href="/theme/css/bootstrap.min.css" type="text/css"/>
+        <link href="/theme/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/theme/css/bootstrap-glyphicons.css" rel="stylesheet">
+    <link href="/theme/css/pygments.css" rel="stylesheet">
+    <link rel="stylesheet" href="/theme/css/style.css" type="text/css"/>
     <!-- JavaScript plugins (requires jQuery) -->
     <script src="http://code.jquery.com/jquery.js"></script>
 
@@ -43,7 +43,7 @@
             <ul class="nav navbar-nav">
                                                                                                 </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="http://it-spir.it/archives.html"><i class="icon-th-list"></i>Archives</a></li>
+                <li><a href="/archives.html"><i class="icon-th-list"></i>Archives</a></li>
             </ul>
         </div>
         <!-- /.navbar-collapse -->
@@ -57,10 +57,10 @@
         <article>
             <header class="page-header">
                 <h1>
-                    <a href="http://it-spir.it/buildout-fails-on-mac-with-xcode-4-installed.html"
+                    <a href="/blog/2012/04/03/plone-move-instance-to-another-host-without-downtime/"
                        rel="bookmark"
-                       title="Permalink to Buildout fails on Mac with Xcode 4 installed">
-                        Buildout fails on Mac with Xcode 4 installed
+                       title="Permalink to Plone: Move instance to another host without downtime">
+                        Plone: Move instance to another host without downtime
                     </a>
                 </h1>
             </header>
@@ -70,35 +70,74 @@
                         <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="icon-calendar"></i>Mo 20 Juni 2011
+        <i class="icon-calendar"></i>Di 03 April 2012
     </span>
                     
             
     
     <span class="label label-default">Tags</span>
-	<a href="http://it-spir.it/tag/macos.html">MacOS</a>
+	<a href="/tag/nginx.html">Nginx</a>
             /
-    	<a href="http://it-spir.it/tag/buildout.html">Buildout</a>
-            /
-    	<a href="http://it-spir.it/tag/python.html">Python</a>
+    	<a href="/tag/plone.html">Plone</a>
         </footer><!-- /.post-info -->                    </div>
                 </div>
-                <p><strong>Installing Apple's Xcode 4 can cause some trouble when compiling Zope
-packages via buildout. This article shows the solution for this problem.</strong></p>
-<p>Xcode4 dropped PPC support. After upgrading to Xcode 4 I realized some strange
-behaviors when running buildout (especially when creating a new Zope buildout
-where things have to be compiled).</p>
-<p>I got some errors like this:</p>
+                <p>At <a class="reference external" href="http://propertyshelf.com">Propertyshelf</a> we're hosting a lot of Plone sites. Therefor we
+use virtual machines. When sites within an instance grow, it might be necessary
+to add or extend some components, like adding more ZEO clients or caching
+(using Varnish or Squid). But what if the virtual machines don't have enough
+power to handle this? Then those Plone instances have to be migrated to
+another, more powerful machine.</p>
+<p>The problem then is to do this without any downtime. Of course you first have
+to create a copy of the existing Plone instance on the new machine, create a
+snapshot backup of all the related data, and restore this data on the new
+machine. But what about the connected domains? The IP addresses differ (if you
+don't use one webserver that does all the domain handling). It can take up to
+several hours to update all the domains on the root DNS servers. But you want
+your sites online, with up to date data.</p>
+<div class="section" id="nginx-configuration-proxy-pass">
+<h2>Nginx configuration: proxy_pass</h2>
+<p>We're using Nginx as webserver for several reasons (of course Apache does the
+job as well). So the following examples are taken from our Nginx config.</p>
+<p>Imagine you have the following config on your actual server:</p>
 <pre class="literal-block">
-compilation terminated.
-lipo: can't open input file: /var/folders/8q/8q7FGaB3FHq8zCFUe4wSVk+++TI/-Tmp-//ccfKEKaS.out (No such file or directory)
-error: command 'gcc-4.2' failed with exit status 1
+server {
+  listen ip-of-actual-server:80;
+  server_name your-domain.com;
+  location / {
+    proxy_pass http://127.0.0.1:8080/VirtualHostBase/http/your-domain.com:80/your-site/VirtualHostRoot/;
+  }
+}
 </pre>
-<p>The solution to solve this is pretty simple. Just add this line to your .profile in your home directory:</p>
+<p>On your new server, add the same config. The only thing that changes is the IP
+address:</p>
 <pre class="literal-block">
-export ARCHFLAGS=&quot;-arch i386 -arch x86_64&quot;
+server {
+  listen ip-of-new-server:80;
+  server_name your-domain.com;
+  location / {
+    proxy_pass http://127.0.0.1:8080/VirtualHostBase/http/your-domain.com:80/your-site/VirtualHostRoot/;
+  }
+}
 </pre>
-<p>That's it.</p>
+<p>Now, on your old server, adjust the config for your domain. Use the proxy_pass
+directive to point to your new server. The important part is the
+proxy_set_header directive:</p>
+<pre class="literal-block">
+server {
+  listen ip-of-actual-server:80;
+  server_name your-domain.com;
+  location / {
+    proxy_pass          http://your-new-server;
+    proxy_redirect      off;
+    proxy_set_header    Host $host;
+  }
+}
+</pre>
+<p>That's it. Now you can move your instance, restart Nginx and update your DNS
+settings. It's save to remove the config on the old server after about one
+week. Then all the root DNS servers should be updated and have the new IP
+address for your domain.</p>
+</div>
 
             </div>
             <!-- /.entry-content -->
@@ -129,45 +168,45 @@ export ARCHFLAGS=&quot;-arch i386 -arch x86_64&quot;
                             
             
                                                                                                 
-            <li class="list-group-item"><a href="http://it-spir.it/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
+            <li class="list-group-item"><a href="/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
                             <li class="list-group-item tag-1">
-                    <a href="http://it-spir.it/tag/plone.html">
+                    <a href="/tag/plone.html">
                         Plone
                     </a>
                 </li>
                             <li class="list-group-item tag-4">
-                    <a href="http://it-spir.it/tag/nginx.html">
-                        Nginx
-                    </a>
-                </li>
-                            <li class="list-group-item tag-4">
-                    <a href="http://it-spir.it/tag/rhodecode.html">
-                        RhodeCode
-                    </a>
-                </li>
-                            <li class="list-group-item tag-4">
-                    <a href="http://it-spir.it/tag/monitoring.html">
-                        Monitoring
-                    </a>
-                </li>
-                            <li class="list-group-item tag-4">
-                    <a href="http://it-spir.it/tag/mercurial.html">
-                        Mercurial
-                    </a>
-                </li>
-                            <li class="list-group-item tag-4">
-                    <a href="http://it-spir.it/tag/python.html">
+                    <a href="/tag/python.html">
                         Python
                     </a>
                 </li>
                             <li class="list-group-item tag-4">
-                    <a href="http://it-spir.it/tag/macos.html">
+                    <a href="/tag/mercurial.html">
+                        Mercurial
+                    </a>
+                </li>
+                            <li class="list-group-item tag-4">
+                    <a href="/tag/buildout.html">
+                        Buildout
+                    </a>
+                </li>
+                            <li class="list-group-item tag-4">
+                    <a href="/tag/macos.html">
                         MacOS
                     </a>
                 </li>
                             <li class="list-group-item tag-4">
-                    <a href="http://it-spir.it/tag/buildout.html">
-                        Buildout
+                    <a href="/tag/rhodecode.html">
+                        RhodeCode
+                    </a>
+                </li>
+                            <li class="list-group-item tag-4">
+                    <a href="/tag/monitoring.html">
+                        Monitoring
+                    </a>
+                </li>
+                            <li class="list-group-item tag-4">
+                    <a href="/tag/nginx.html">
+                        Nginx
                     </a>
                 </li>
                     </ul>
@@ -177,9 +216,9 @@ export ARCHFLAGS=&quot;-arch i386 -arch x86_64&quot;
 </div>
 
 <!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src="http://it-spir.it/theme/js/bootstrap.min.js"></script>
+<script src="/theme/js/bootstrap.min.js"></script>
 
 <!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
-<script src="http://it-spir.it/theme/js/respond.min.js"></script>
+<script src="/theme/js/respond.min.js"></script>
 </body>
 </html>

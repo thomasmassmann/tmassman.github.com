@@ -3,7 +3,7 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>RhodeCode: remove outdated session data</title>
+    <title>Buildout fails on Mac with Xcode 4 installed</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -12,16 +12,16 @@
     <!-- Open Graph tags -->
                 
                                 <meta property="og:type" content="article"/>
-            <meta property="og:title" content="RhodeCode: remove outdated session data"/>
-            <meta property="og:url" content="http://it-spir.it/rhodecode-remove-outdated-session-data.html"/>
-            <meta property="og:description" content="RhodeCode uses Beaker for session management. By default the Beaker backend is set to file storage. Cleaning up those files by time is necessary."/>
+            <meta property="og:title" content="Buildout fails on Mac with Xcode 4 installed"/>
+            <meta property="og:url" content="/blog/2011/06/20/buildout-fails-on-mac-with-xcode-4-installed/"/>
+            <meta property="og:description" content="Installing Apple's Xcode 4 can cause some trouble when compiling Zope packages via buildout. This article shows the solution for this problem."/>
         
         <!-- Bootstrap -->
-            <link rel="stylesheet" href="http://it-spir.it/theme/css/bootstrap.min.css" type="text/css"/>
-        <link href="http://it-spir.it/theme/css/font-awesome.min.css" rel="stylesheet">
-    <link href="http://it-spir.it/theme/css/bootstrap-glyphicons.css" rel="stylesheet">
-    <link href="http://it-spir.it/theme/css/pygments.css" rel="stylesheet">
-    <link rel="stylesheet" href="http://it-spir.it/theme/css/style.css" type="text/css"/>
+            <link rel="stylesheet" href="/theme/css/bootstrap.min.css" type="text/css"/>
+        <link href="/theme/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/theme/css/bootstrap-glyphicons.css" rel="stylesheet">
+    <link href="/theme/css/pygments.css" rel="stylesheet">
+    <link rel="stylesheet" href="/theme/css/style.css" type="text/css"/>
     <!-- JavaScript plugins (requires jQuery) -->
     <script src="http://code.jquery.com/jquery.js"></script>
 
@@ -43,7 +43,7 @@
             <ul class="nav navbar-nav">
                                                                                                 </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="http://it-spir.it/archives.html"><i class="icon-th-list"></i>Archives</a></li>
+                <li><a href="/archives.html"><i class="icon-th-list"></i>Archives</a></li>
             </ul>
         </div>
         <!-- /.navbar-collapse -->
@@ -57,10 +57,10 @@
         <article>
             <header class="page-header">
                 <h1>
-                    <a href="http://it-spir.it/rhodecode-remove-outdated-session-data.html"
+                    <a href="/blog/2011/06/20/buildout-fails-on-mac-with-xcode-4-installed/"
                        rel="bookmark"
-                       title="Permalink to RhodeCode: remove outdated session data">
-                        RhodeCode: remove outdated session data
+                       title="Permalink to Buildout fails on Mac with Xcode 4 installed">
+                        Buildout fails on Mac with Xcode 4 installed
                     </a>
                 </h1>
             </header>
@@ -70,65 +70,35 @@
                         <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="icon-calendar"></i>Sa 31 März 2012
+        <i class="icon-calendar"></i>Mo 20 Juni 2011
     </span>
                     
             
     
     <span class="label label-default">Tags</span>
-	<a href="http://it-spir.it/tag/mercurial.html">Mercurial</a>
+	<a href="/tag/macos.html">MacOS</a>
             /
-    	<a href="http://it-spir.it/tag/rhodecode.html">RhodeCode</a>
+    	<a href="/tag/buildout.html">Buildout</a>
             /
-    	<a href="http://it-spir.it/tag/monitoring.html">Monitoring</a>
+    	<a href="/tag/python.html">Python</a>
         </footer><!-- /.post-info -->                    </div>
                 </div>
-                <p><strong>RhodeCode uses Beaker for session management. By default the Beaker backend is
-set to file storage. Cleaning up those files by time is necessary.</strong></p>
-<p>We use <a class="reference external" href="http://rhodecode.org/">RhodeCode</a> for our internal
-<a class="reference external" href="http://mercurial.selenic.com/">Mercurial</a> repositories. It's great for what it
-does: user and group management, repository groups, etc.</p>
-<p>But when I looked at our server today I was kind of shocked about the inode
-usage on one of our partitions. Checking out the Munin graphs I realized that
-it had something todo with our repos. But the repository folder wasn't that
-big, only about 160MB. So I was looking for the inode usage:</p>
+                <p><strong>Installing Apple's Xcode 4 can cause some trouble when compiling Zope
+packages via buildout. This article shows the solution for this problem.</strong></p>
+<p>Xcode4 dropped PPC support. After upgrading to Xcode 4 I realized some strange
+behaviors when running buildout (especially when creating a new Zope buildout
+where things have to be compiled).</p>
+<p>I got some errors like this:</p>
 <pre class="literal-block">
-$ find /opt/repositories/ -type f | wc -l
-14110
+compilation terminated.
+lipo: can't open input file: /var/folders/8q/8q7FGaB3FHq8zCFUe4wSVk+++TI/-Tmp-//ccfKEKaS.out (No such file or directory)
+error: command 'gcc-4.2' failed with exit status 1
 </pre>
-<p>That's not too much. Also because df shows a usage of about 500.000 inodes. Ok,
-checking the RhodeCode directory:</p>
+<p>The solution to solve this is pretty simple. Just add this line to your .profile in your home directory:</p>
 <pre class="literal-block">
-$ find /opt/rhodecode/ -type f | wc -l
-483992
+export ARCHFLAGS=&quot;-arch i386 -arch x86_64&quot;
 </pre>
-<p>Yes! But wait. Where does all the files come from?</p>
-<p>RhodeCode uses Beaker for session management. And by default, file storage is
-used. This isn't that bad, but from the Beaker documentation you can see that
-it could be:</p>
-<blockquote>
-Beaker does not automatically delete expired or old cookies on any of its
-back-ends. This task is left up to the developer based on how sessions are
-being used, and on what back-end. The database backend records the last
-accessed time as a column in the database so a script could be run to delete
-session rows in the database that haven’t been used in a long time.</blockquote>
-<p>So for the file backend that means that all the session files are kept.
-Forever!</p>
-<p>But help is here! You can remove outdated session files with a simple command:</p>
-<pre class="literal-block">
-$ find /opt/rhodecode/data/sessions -mtime +3 -exec rm {} \;
-</pre>
-<p>This removes all the session files older than 3 days. The result is amazing:</p>
-<pre class="literal-block">
-$ find /opt/rhodecode/data/session/ -type f | wc -l
-4528
-</pre>
-<p>If you're lazy like me, simply add a cronjob and let your system do the rest:</p>
-<pre class="literal-block">
-# m h  dom mon dow   command
-0 1 1 * * find /opt/rhodecode/apps/propertyshelf/data/sessions -type f -mtime +3 -exec rm {} \;
-</pre>
-<p>This removes old session files on every 1st of a month at 1:00am.</p>
+<p>That's it.</p>
 
             </div>
             <!-- /.entry-content -->
@@ -159,45 +129,45 @@ $ find /opt/rhodecode/data/session/ -type f | wc -l
                             
             
                                                                                                 
-            <li class="list-group-item"><a href="http://it-spir.it/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
+            <li class="list-group-item"><a href="/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
                             <li class="list-group-item tag-1">
-                    <a href="http://it-spir.it/tag/plone.html">
+                    <a href="/tag/plone.html">
                         Plone
                     </a>
                 </li>
                             <li class="list-group-item tag-4">
-                    <a href="http://it-spir.it/tag/nginx.html">
-                        Nginx
-                    </a>
-                </li>
-                            <li class="list-group-item tag-4">
-                    <a href="http://it-spir.it/tag/rhodecode.html">
-                        RhodeCode
-                    </a>
-                </li>
-                            <li class="list-group-item tag-4">
-                    <a href="http://it-spir.it/tag/monitoring.html">
-                        Monitoring
-                    </a>
-                </li>
-                            <li class="list-group-item tag-4">
-                    <a href="http://it-spir.it/tag/mercurial.html">
-                        Mercurial
-                    </a>
-                </li>
-                            <li class="list-group-item tag-4">
-                    <a href="http://it-spir.it/tag/python.html">
+                    <a href="/tag/python.html">
                         Python
                     </a>
                 </li>
                             <li class="list-group-item tag-4">
-                    <a href="http://it-spir.it/tag/macos.html">
+                    <a href="/tag/mercurial.html">
+                        Mercurial
+                    </a>
+                </li>
+                            <li class="list-group-item tag-4">
+                    <a href="/tag/buildout.html">
+                        Buildout
+                    </a>
+                </li>
+                            <li class="list-group-item tag-4">
+                    <a href="/tag/macos.html">
                         MacOS
                     </a>
                 </li>
                             <li class="list-group-item tag-4">
-                    <a href="http://it-spir.it/tag/buildout.html">
-                        Buildout
+                    <a href="/tag/rhodecode.html">
+                        RhodeCode
+                    </a>
+                </li>
+                            <li class="list-group-item tag-4">
+                    <a href="/tag/monitoring.html">
+                        Monitoring
+                    </a>
+                </li>
+                            <li class="list-group-item tag-4">
+                    <a href="/tag/nginx.html">
+                        Nginx
                     </a>
                 </li>
                     </ul>
@@ -207,9 +177,9 @@ $ find /opt/rhodecode/data/session/ -type f | wc -l
 </div>
 
 <!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src="http://it-spir.it/theme/js/bootstrap.min.js"></script>
+<script src="/theme/js/bootstrap.min.js"></script>
 
 <!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
-<script src="http://it-spir.it/theme/js/respond.min.js"></script>
+<script src="/theme/js/respond.min.js"></script>
 </body>
 </html>
