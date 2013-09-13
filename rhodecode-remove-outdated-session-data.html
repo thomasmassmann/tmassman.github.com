@@ -3,7 +3,7 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>it-spir.it - Categories</title>
+    <title>RhodeCode: remove outdated session data</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -11,11 +11,11 @@
 
     <!-- Open Graph tags -->
                 
-                                <meta property="og:type" content="website"/>
-            <meta property="og:title" content="it-spir.it"/>
-            <meta property="og:url" content="http://it-spir.it"/>
-            <meta property="og:description" content="it-spir.it"/>
-                    
+                                <meta property="og:type" content="article"/>
+            <meta property="og:title" content="RhodeCode: remove outdated session data"/>
+            <meta property="og:url" content="http://it-spir.it/rhodecode-remove-outdated-session-data.html"/>
+            <meta property="og:description" content="RhodeCode uses Beaker for session management. By default the Beaker backend is set to file storage. Cleaning up those files by time is necessary."/>
+        
         <!-- Bootstrap -->
             <link rel="stylesheet" href="http://it-spir.it/theme/css/bootstrap.min.css" type="text/css"/>
         <link href="http://it-spir.it/theme/css/font-awesome.min.css" rel="stylesheet">
@@ -53,13 +53,88 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-9">
-                <section id="categories">
-        <h1>Categories for it-spir.it</h1>
-        <ul>
-                            <li><a href="category/hosting.html">Hosting</a></li>
-                            <li><a href="category/coding.html">coding</a></li>
-                    </ul>
+                <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="http://it-spir.it/rhodecode-remove-outdated-session-data.html"
+                       rel="bookmark"
+                       title="Permalink to RhodeCode: remove outdated session data">
+                        RhodeCode: remove outdated session data
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+                        <footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="icon-calendar"></i>Sa 31 März 2012
+    </span>
+                    
+            
+    
+    <span class="label label-default">Tags</span>
+	<a href="http://it-spir.it/tag/mercurial.html">Mercurial</a>
+            /
+    	<a href="http://it-spir.it/tag/rhodecode.html">RhodeCode</a>
+            /
+    	<a href="http://it-spir.it/tag/monitoring.html">Monitoring</a>
+        </footer><!-- /.post-info -->                    </div>
+                </div>
+                <p><strong>RhodeCode uses Beaker for session management. By default the Beaker backend is
+set to file storage. Cleaning up those files by time is necessary.</strong></p>
+<p>We use <a class="reference external" href="http://rhodecode.org/">RhodeCode</a> for our internal
+<a class="reference external" href="http://mercurial.selenic.com/">Mercurial</a> repositories. It's great for what it
+does: user and group management, repository groups, etc.</p>
+<p>But when I looked at our server today I was kind of shocked about the inode
+usage on one of our partitions. Checking out the Munin graphs I realized that
+it had something todo with our repos. But the repository folder wasn't that
+big, only about 160MB. So I was looking for the inode usage:</p>
+<pre class="literal-block">
+$ find /opt/repositories/ -type f | wc -l
+14110
+</pre>
+<p>That's not too much. Also because df shows a usage of about 500.000 inodes. Ok,
+checking the RhodeCode directory:</p>
+<pre class="literal-block">
+$ find /opt/rhodecode/ -type f | wc -l
+483992
+</pre>
+<p>Yes! But wait. Where does all the files come from?</p>
+<p>RhodeCode uses Beaker for session management. And by default, file storage is
+used. This isn't that bad, but from the Beaker documentation you can see that
+it could be:</p>
+<blockquote>
+Beaker does not automatically delete expired or old cookies on any of its
+back-ends. This task is left up to the developer based on how sessions are
+being used, and on what back-end. The database backend records the last
+accessed time as a column in the database so a script could be run to delete
+session rows in the database that haven’t been used in a long time.</blockquote>
+<p>So for the file backend that means that all the session files are kept.
+Forever!</p>
+<p>But help is here! You can remove outdated session files with a simple command:</p>
+<pre class="literal-block">
+$ find /opt/rhodecode/data/sessions -mtime +3 -exec rm {} \;
+</pre>
+<p>This removes all the session files older than 3 days. The result is amazing:</p>
+<pre class="literal-block">
+$ find /opt/rhodecode/data/session/ -type f | wc -l
+4528
+</pre>
+<p>If you're lazy like me, simply add a cronjob and let your system do the rest:</p>
+<pre class="literal-block">
+# m h  dom mon dow   command
+0 1 1 * * find /opt/rhodecode/apps/propertyshelf/data/sessions -type f -mtime +3 -exec rm {} \;
+</pre>
+<p>This removes old session files on every 1st of a month at 1:00am.</p>
+
+            </div>
+            <!-- /.entry-content -->
+                                </article>
     </section>
+
         </div>
         <div class="col-lg-3 well well-sm" id="sidebar">
             <aside>

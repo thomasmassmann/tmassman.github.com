@@ -3,7 +3,7 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>it-spir.it - Categories</title>
+    <title>Plone: Move instance to another host without downtime</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -11,11 +11,11 @@
 
     <!-- Open Graph tags -->
                 
-                                <meta property="og:type" content="website"/>
-            <meta property="og:title" content="it-spir.it"/>
-            <meta property="og:url" content="http://it-spir.it"/>
-            <meta property="og:description" content="it-spir.it"/>
-                    
+                                <meta property="og:type" content="article"/>
+            <meta property="og:title" content="Plone: Move instance to another host without downtime"/>
+            <meta property="og:url" content="http://it-spir.it/plone-move-instance-to-another-host-without-downtime.html"/>
+            <meta property="og:description" content="Sometimes it might be necessary to move a Plone instance to another host. This article describes how do this without almost any downtime."/>
+        
         <!-- Bootstrap -->
             <link rel="stylesheet" href="http://it-spir.it/theme/css/bootstrap.min.css" type="text/css"/>
         <link href="http://it-spir.it/theme/css/font-awesome.min.css" rel="stylesheet">
@@ -53,13 +53,97 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-9">
-                <section id="categories">
-        <h1>Categories for it-spir.it</h1>
-        <ul>
-                            <li><a href="category/hosting.html">Hosting</a></li>
-                            <li><a href="category/coding.html">coding</a></li>
-                    </ul>
+                <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="http://it-spir.it/plone-move-instance-to-another-host-without-downtime.html"
+                       rel="bookmark"
+                       title="Permalink to Plone: Move instance to another host without downtime">
+                        Plone: Move instance to another host without downtime
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+                        <footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="icon-calendar"></i>Di 03 April 2012
+    </span>
+                    
+            
+    
+    <span class="label label-default">Tags</span>
+	<a href="http://it-spir.it/tag/nginx.html">Nginx</a>
+            /
+    	<a href="http://it-spir.it/tag/plone.html">Plone</a>
+        </footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>At <a class="reference external" href="http://propertyshelf.com">Propertyshelf</a> we're hosting a lot of Plone sites. Therefor we
+use virtual machines. When sites within an instance grow, it might be necessary
+to add or extend some components, like adding more ZEO clients or caching
+(using Varnish or Squid). But what if the virtual machines don't have enough
+power to handle this? Then those Plone instances have to be migrated to
+another, more powerful machine.</p>
+<p>The problem then is to do this without any downtime. Of course you first have
+to create a copy of the existing Plone instance on the new machine, create a
+snapshot backup of all the related data, and restore this data on the new
+machine. But what about the connected domains? The IP addresses differ (if you
+don't use one webserver that does all the domain handling). It can take up to
+several hours to update all the domains on the root DNS servers. But you want
+your sites online, with up to date data.</p>
+<div class="section" id="nginx-configuration-proxy-pass">
+<h2>Nginx configuration: proxy_pass</h2>
+<p>We're using Nginx as webserver for several reasons (of course Apache does the
+job as well). So the following examples are taken from our Nginx config.</p>
+<p>Imagine you have the following config on your actual server:</p>
+<pre class="literal-block">
+server {
+  listen ip-of-actual-server:80;
+  server_name your-domain.com;
+  location / {
+    proxy_pass http://127.0.0.1:8080/VirtualHostBase/http/your-domain.com:80/your-site/VirtualHostRoot/;
+  }
+}
+</pre>
+<p>On your new server, add the same config. The only thing that changes is the IP
+address:</p>
+<pre class="literal-block">
+server {
+  listen ip-of-new-server:80;
+  server_name your-domain.com;
+  location / {
+    proxy_pass http://127.0.0.1:8080/VirtualHostBase/http/your-domain.com:80/your-site/VirtualHostRoot/;
+  }
+}
+</pre>
+<p>Now, on your old server, adjust the config for your domain. Use the proxy_pass
+directive to point to your new server. The important part is the
+proxy_set_header directive:</p>
+<pre class="literal-block">
+server {
+  listen ip-of-actual-server:80;
+  server_name your-domain.com;
+  location / {
+    proxy_pass          http://your-new-server;
+    proxy_redirect      off;
+    proxy_set_header    Host $host;
+  }
+}
+</pre>
+<p>That's it. Now you can move your instance, restart Nginx and update your DNS
+settings. It's save to remove the config on the old server after about one
+week. Then all the root DNS servers should be updated and have the new IP
+address for your domain.</p>
+</div>
+
+            </div>
+            <!-- /.entry-content -->
+                                </article>
     </section>
+
         </div>
         <div class="col-lg-3 well well-sm" id="sidebar">
             <aside>

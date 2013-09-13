@@ -3,7 +3,7 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>it-spir.it - Categories</title>
+    <title>Buildout fails on Mac with Xcode 4 installed</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -11,11 +11,11 @@
 
     <!-- Open Graph tags -->
                 
-                                <meta property="og:type" content="website"/>
-            <meta property="og:title" content="it-spir.it"/>
-            <meta property="og:url" content="http://it-spir.it"/>
-            <meta property="og:description" content="it-spir.it"/>
-                    
+                                <meta property="og:type" content="article"/>
+            <meta property="og:title" content="Buildout fails on Mac with Xcode 4 installed"/>
+            <meta property="og:url" content="http://it-spir.it/buildout-fails-on-mac-with-xcode-4-installed.html"/>
+            <meta property="og:description" content="Installing Apple's Xcode 4 can cause some trouble when compiling Zope packages via buildout. This article shows the solution for this problem."/>
+        
         <!-- Bootstrap -->
             <link rel="stylesheet" href="http://it-spir.it/theme/css/bootstrap.min.css" type="text/css"/>
         <link href="http://it-spir.it/theme/css/font-awesome.min.css" rel="stylesheet">
@@ -53,13 +53,58 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-9">
-                <section id="categories">
-        <h1>Categories for it-spir.it</h1>
-        <ul>
-                            <li><a href="category/hosting.html">Hosting</a></li>
-                            <li><a href="category/coding.html">coding</a></li>
-                    </ul>
+                <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="http://it-spir.it/buildout-fails-on-mac-with-xcode-4-installed.html"
+                       rel="bookmark"
+                       title="Permalink to Buildout fails on Mac with Xcode 4 installed">
+                        Buildout fails on Mac with Xcode 4 installed
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+                        <footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="icon-calendar"></i>Mo 20 Juni 2011
+    </span>
+                    
+            
+    
+    <span class="label label-default">Tags</span>
+	<a href="http://it-spir.it/tag/macos.html">MacOS</a>
+            /
+    	<a href="http://it-spir.it/tag/buildout.html">Buildout</a>
+            /
+    	<a href="http://it-spir.it/tag/python.html">Python</a>
+        </footer><!-- /.post-info -->                    </div>
+                </div>
+                <p><strong>Installing Apple's Xcode 4 can cause some trouble when compiling Zope
+packages via buildout. This article shows the solution for this problem.</strong></p>
+<p>Xcode4 dropped PPC support. After upgrading to Xcode 4 I realized some strange
+behaviors when running buildout (especially when creating a new Zope buildout
+where things have to be compiled).</p>
+<p>I got some errors like this:</p>
+<pre class="literal-block">
+compilation terminated.
+lipo: can't open input file: /var/folders/8q/8q7FGaB3FHq8zCFUe4wSVk+++TI/-Tmp-//ccfKEKaS.out (No such file or directory)
+error: command 'gcc-4.2' failed with exit status 1
+</pre>
+<p>The solution to solve this is pretty simple. Just add this line to your .profile in your home directory:</p>
+<pre class="literal-block">
+export ARCHFLAGS=&quot;-arch i386 -arch x86_64&quot;
+</pre>
+<p>That's it.</p>
+
+            </div>
+            <!-- /.entry-content -->
+                                </article>
     </section>
+
         </div>
         <div class="col-lg-3 well well-sm" id="sidebar">
             <aside>

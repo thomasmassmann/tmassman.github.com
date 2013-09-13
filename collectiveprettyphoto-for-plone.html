@@ -3,7 +3,7 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>it-spir.it - Categories</title>
+    <title>collective.prettyphoto for Plone</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -11,11 +11,11 @@
 
     <!-- Open Graph tags -->
                 
-                                <meta property="og:type" content="website"/>
-            <meta property="og:title" content="it-spir.it"/>
-            <meta property="og:url" content="http://it-spir.it"/>
-            <meta property="og:description" content="it-spir.it"/>
-                    
+                                <meta property="og:type" content="article"/>
+            <meta property="og:title" content="collective.prettyphoto for Plone"/>
+            <meta property="og:url" content="http://it-spir.it/collectiveprettyphoto-for-plone.html"/>
+            <meta property="og:description" content="Over the past few days I had some time to finish what was planned for so long: integrate prettyPhoto (written by Stéphane Caron) into Plone. Here it is...""/>
+        
         <!-- Bootstrap -->
             <link rel="stylesheet" href="http://it-spir.it/theme/css/bootstrap.min.css" type="text/css"/>
         <link href="http://it-spir.it/theme/css/font-awesome.min.css" rel="stylesheet">
@@ -53,13 +53,114 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-9">
-                <section id="categories">
-        <h1>Categories for it-spir.it</h1>
-        <ul>
-                            <li><a href="category/hosting.html">Hosting</a></li>
-                            <li><a href="category/coding.html">coding</a></li>
-                    </ul>
+                <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="http://it-spir.it/collectiveprettyphoto-for-plone.html"
+                       rel="bookmark"
+                       title="Permalink to collective.prettyphoto for Plone">
+                        collective.prettyphoto for Plone
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+                        <footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="icon-calendar"></i>Do 31 Dezember 2009
+    </span>
+                    
+            
+    
+    <span class="label label-default">Tags</span>
+	<a href="http://it-spir.it/tag/plone.html">Plone</a>
+        </footer><!-- /.post-info -->                    </div>
+                </div>
+                <p><strong>Over the past few days I had some time to finish what was planned for so
+long: integrate prettyPhoto (written by Stéphane Caron) into Plone. Here it
+is...</strong></p>
+<div class="section" id="introduction">
+<h2>Introduction</h2>
+<p>prettyPhoto is a jQuery based lightbox clone. Not only does it support images,
+it also add support for videos, flash, YouTube, iFrames. It's a full blown
+media lightbox. The setup is easy and quick, plus the script is compatible in
+every major browser.</p>
+<p>The original implementation by Stéphane Caron can be found <a class="reference external" href="http://www.no-margin-for-errors.com/projects/prettyphoto-jquery-lightbox-clone/">here</a>
+.</p>
+<p>This plugin has been tested and is known to work in the following browsers</p>
+<ul class="simple">
+<li>Firefox 2.0+</li>
+<li>Safari 3.1.1+</li>
+<li>Opera 9+</li>
+<li>Internet Explorer 6.0+</li>
+</ul>
+<p>collective.prettyphoto is an implementation of prettyPhoto for Plone.</p>
+</div>
+<div class="section" id="installing">
+<h2>Installing</h2>
+<p><a class="reference external" href="http://pypi.python.org/pypi/collective.prettyphoto">collective.prettyphoto</a> is availabe at PyPI. It
+requires Plone 3.x or later (tested on 3.3.3).</p>
+<div class="section" id="installing-without-buildout">
+<h3>Installing without buildout</h3>
+<p>Install this package in either your system path packages or in the lib/python
+directory of your Zope instance. You can do this using either easy_install or
+via the setup.py script.</p>
+</div>
+<div class="section" id="installing-with-buildout">
+<h3>Installing with buildout</h3>
+<p>If you are using <a class="reference external" href="http://pypi.python.org/pypi/zc.buildout">buildout</a> to manage your instance installing
+collective.prettyphoto is even simpler. You can install collective.prettyphoto
+by adding it to the eggs line for your instance:</p>
+<pre class="literal-block">
+[instance]
+eggs = collective.prettyphoto
+</pre>
+<p>After updating the configuration you need to run the ''bin/buildout'', which will take care of updating your system.</p>
+</div>
+</div>
+<div class="section" id="usage">
+<h2>Usage</h2>
+<p>collective.prettyphoto adds a new view for Topics, Folders and Large Plone
+Folders: <strong>Thumbnail view (prettyPhoto)</strong>.</p>
+<p>To use prettyPhoto for inline elements just add <strong>prettyPhoto</strong> from the styles
+menu (Kupu and TinyMCE) to the link.</p>
+</div>
+<div class="section" id="configuration">
+<h2>Configuration</h2>
+<p>collective.prettyphoto can be customized via property sheet (go to ZMI,
+portal_properties, prettyphoto_properties).</p>
+<ul class="simple">
+<li><tt class="docutils literal">theme</tt>:<ul>
+<li><tt class="docutils literal">dark_rounded</tt></li>
+<li><tt class="docutils literal">dark_square</tt></li>
+<li><tt class="docutils literal">facebook</tt></li>
+<li><tt class="docutils literal">light_rounded</tt> (default)</li>
+<li><tt class="docutils literal">light_square</tt></li>
+</ul>
+</li>
+<li><tt class="docutils literal">speed</tt>:<ul>
+<li><tt class="docutils literal">fast</tt></li>
+<li><tt class="docutils literal">normal</tt> (default)</li>
+<li><tt class="docutils literal">slow</tt></li>
+</ul>
+</li>
+<li><tt class="docutils literal">opacity</tt>: value from 0.0 to 1.0 (default: 0.80)</li>
+<li><tt class="docutils literal">show_title</tt>: show the title for images? (default: True)</li>
+<li><tt class="docutils literal">counter_sep</tt>: the separator for the gallery counter 1 &quot;of&quot; 2 (default: &quot;/&quot;)</li>
+<li><tt class="docutils literal">autoplay</tt>: automatically start videos? (default: True)</li>
+<li><tt class="docutils literal">iframe_width</tt>: the width of the iframe (must be percantage, default: 75%)</li>
+<li><tt class="docutils literal">iframe_height</tt>: the height of the iframe (must be percantage, default: 75%)</li>
+</ul>
+</div>
+
+            </div>
+            <!-- /.entry-content -->
+                                </article>
     </section>
+
         </div>
         <div class="col-lg-3 well well-sm" id="sidebar">
             <aside>
