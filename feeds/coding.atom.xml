@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>it-spir.it</title><link href="/" rel="alternate"></link><link href="/feeds/coding.atom.xml" rel="self"></link><id>/</id><updated>2012-03-31T00:00:00+02:00</updated><entry><title>RhodeCode: remove outdated session data</title><link href="/blog/2012/03/31/rhodecode-remove-outdated-session-data/" rel="alternate"></link><updated>2012-03-31T00:00:00+02:00</updated><author><name>Thomas Massmann</name></author><id>tag:,2012-03-31:blog/2012/03/31/rhodecode-remove-outdated-session-data/</id><summary type="html">&lt;p&gt;&lt;strong&gt;RhodeCode uses Beaker for session management. By default the Beaker backend is
+set to file storage. Cleaning up those files by time is necessary.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;We use &lt;a class="reference external" href="http://rhodecode.org/"&gt;RhodeCode&lt;/a&gt; for our internal
+&lt;a class="reference external" href="http://mercurial.selenic.com/"&gt;Mercurial&lt;/a&gt; repositories. It's great for what it
+does: user and group management, repository groups, etc.&lt;/p&gt;
+&lt;p&gt;But when I looked at our server today I was kind of shocked about the inode
+usage on one of our partitions. Checking out the Munin graphs I realized that
+it had something todo with our repos. But the repository folder wasn't that
+big, only about 160MB. So I was looking for the inode usage:&lt;/p&gt;
+&lt;pre class="literal-block"&gt;
+$ find /opt/repositories/ -type f | wc -l
+14110
+&lt;/pre&gt;
+&lt;p&gt;That's not too much. Also because df shows a usage of about 500.000 inodes. Ok,
+checking the RhodeCode directory:&lt;/p&gt;
+&lt;pre class="literal-block"&gt;
+$ find /opt/rhodecode/ -type f | wc -l
+483992
+&lt;/pre&gt;
+&lt;p&gt;Yes! But wait. Where does all the files come from?&lt;/p&gt;
+&lt;p&gt;RhodeCode uses Beaker for session management. And by default, file storage is
+used. This isn't that bad, but from the Beaker documentation you can see that
+it could be:&lt;/p&gt;
+&lt;blockquote&gt;
+Beaker does not automatically delete expired or old cookies on any of its
+back-ends. This task is left up to the developer based on how sessions are
+being used, and on what back-end. The database backend records the last
+accessed time as a column in the database so a script could be run to delete
+session rows in the database that haven’t been used in a long time.&lt;/blockquote&gt;
+&lt;p&gt;So for the file backend that means that all the session files are kept.
+Forever!&lt;/p&gt;
+&lt;p&gt;But help is here! You can remove outdated session files with a simple command:&lt;/p&gt;
+&lt;pre class="literal-block"&gt;
+$ find /opt/rhodecode/data/sessions -mtime +3 -exec rm {} \;
+&lt;/pre&gt;
+&lt;p&gt;This removes all the session files older than 3 days. The result is amazing:&lt;/p&gt;
+&lt;pre class="literal-block"&gt;
+$ find /opt/rhodecode/data/session/ -type f | wc -l
+4528
+&lt;/pre&gt;
+&lt;p&gt;If you're lazy like me, simply add a cronjob and let your system do the rest:&lt;/p&gt;
+&lt;pre class="literal-block"&gt;
+# m h  dom mon dow   command
+0 1 1 * * find /opt/rhodecode/apps/propertyshelf/data/sessions -type f -mtime +3 -exec rm {} \;
+&lt;/pre&gt;
+&lt;p&gt;This removes old session files on every 1st of a month at 1:00am.&lt;/p&gt;
+</summary><category term="Mercurial"></category><category term="RhodeCode"></category><category term="Monitoring"></category></entry><entry><title>Buildout fails on Mac with Xcode 4 installed</title><link href="/blog/2011/06/20/buildout-fails-on-mac-with-xcode-4-installed/" rel="alternate"></link><updated>2011-06-20T00:00:00+02:00</updated><author><name>Thomas Massmann</name></author><id>tag:,2011-06-20:blog/2011/06/20/buildout-fails-on-mac-with-xcode-4-installed/</id><summary type="html">&lt;p&gt;&lt;strong&gt;Installing Apple's Xcode 4 can cause some trouble when compiling Zope
+packages via buildout. This article shows the solution for this problem.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Xcode4 dropped PPC support. After upgrading to Xcode 4 I realized some strange
+behaviors when running buildout (especially when creating a new Zope buildout
+where things have to be compiled).&lt;/p&gt;
+&lt;p&gt;I got some errors like this:&lt;/p&gt;
+&lt;pre class="literal-block"&gt;
+compilation terminated.
+lipo: can't open input file: /var/folders/8q/8q7FGaB3FHq8zCFUe4wSVk+++TI/-Tmp-//ccfKEKaS.out (No such file or directory)
+error: command 'gcc-4.2' failed with exit status 1
+&lt;/pre&gt;
+&lt;p&gt;The solution to solve this is pretty simple. Just add this line to your .profile in your home directory:&lt;/p&gt;
+&lt;pre class="literal-block"&gt;
+export ARCHFLAGS=&amp;quot;-arch i386 -arch x86_64&amp;quot;
+&lt;/pre&gt;
+&lt;p&gt;That's it.&lt;/p&gt;
+</summary><category term="MacOS"></category><category term="Buildout"></category><category term="Python"></category></entry><entry><title>collective.prettyphoto for Plone</title><link href="/blog/2009/12/31/collectiveprettyphoto-for-plone/" rel="alternate"></link><updated>2009-12-31T00:00:00+01:00</updated><author><name>Thomas Massmann</name></author><id>tag:,2009-12-31:blog/2009/12/31/collectiveprettyphoto-for-plone/</id><summary type="html">&lt;p&gt;&lt;strong&gt;Over the past few days I had some time to finish what was planned for so
+long: integrate prettyPhoto (written by Stéphane Caron) into Plone. Here it
+is...&lt;/strong&gt;&lt;/p&gt;
+&lt;div class="section" id="introduction"&gt;
+&lt;h2&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;prettyPhoto is a jQuery based lightbox clone. Not only does it support images,
+it also add support for videos, flash, YouTube, iFrames. It's a full blown
+media lightbox. The setup is easy and quick, plus the script is compatible in
+every major browser.&lt;/p&gt;
+&lt;p&gt;The original implementation by Stéphane Caron can be found &lt;a class="reference external" href="http://www.no-margin-for-errors.com/projects/prettyphoto-jquery-lightbox-clone/"&gt;here&lt;/a&gt;
+.&lt;/p&gt;
+&lt;p&gt;This plugin has been tested and is known to work in the following browsers&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Firefox 2.0+&lt;/li&gt;
+&lt;li&gt;Safari 3.1.1+&lt;/li&gt;
+&lt;li&gt;Opera 9+&lt;/li&gt;
+&lt;li&gt;Internet Explorer 6.0+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;collective.prettyphoto is an implementation of prettyPhoto for Plone.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="installing"&gt;
+&lt;h2&gt;Installing&lt;/h2&gt;
+&lt;p&gt;&lt;a class="reference external" href="http://pypi.python.org/pypi/collective.prettyphoto"&gt;collective.prettyphoto&lt;/a&gt; is availabe at PyPI. It
+requires Plone 3.x or later (tested on 3.3.3).&lt;/p&gt;
+&lt;div class="section" id="installing-without-buildout"&gt;
+&lt;h3&gt;Installing without buildout&lt;/h3&gt;
+&lt;p&gt;Install this package in either your system path packages or in the lib/python
+directory of your Zope instance. You can do this using either easy_install or
+via the setup.py script.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="installing-with-buildout"&gt;
+&lt;h3&gt;Installing with buildout&lt;/h3&gt;
+&lt;p&gt;If you are using &lt;a class="reference external" href="http://pypi.python.org/pypi/zc.buildout"&gt;buildout&lt;/a&gt; to manage your instance installing
+collective.prettyphoto is even simpler. You can install collective.prettyphoto
+by adding it to the eggs line for your instance:&lt;/p&gt;
+&lt;pre class="literal-block"&gt;
+[instance]
+eggs = collective.prettyphoto
+&lt;/pre&gt;
+&lt;p&gt;After updating the configuration you need to run the ''bin/buildout'', which will take care of updating your system.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="usage"&gt;
+&lt;h2&gt;Usage&lt;/h2&gt;
+&lt;p&gt;collective.prettyphoto adds a new view for Topics, Folders and Large Plone
+Folders: &lt;strong&gt;Thumbnail view (prettyPhoto)&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;To use prettyPhoto for inline elements just add &lt;strong&gt;prettyPhoto&lt;/strong&gt; from the styles
+menu (Kupu and TinyMCE) to the link.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="configuration"&gt;
+&lt;h2&gt;Configuration&lt;/h2&gt;
+&lt;p&gt;collective.prettyphoto can be customized via property sheet (go to ZMI,
+portal_properties, prettyphoto_properties).&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;&lt;tt class="docutils literal"&gt;theme&lt;/tt&gt;:&lt;ul&gt;
+&lt;li&gt;&lt;tt class="docutils literal"&gt;dark_rounded&lt;/tt&gt;&lt;/li&gt;
+&lt;li&gt;&lt;tt class="docutils literal"&gt;dark_square&lt;/tt&gt;&lt;/li&gt;
+&lt;li&gt;&lt;tt class="docutils literal"&gt;facebook&lt;/tt&gt;&lt;/li&gt;
+&lt;li&gt;&lt;tt class="docutils literal"&gt;light_rounded&lt;/tt&gt; (default)&lt;/li&gt;
+&lt;li&gt;&lt;tt class="docutils literal"&gt;light_square&lt;/tt&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;tt class="docutils literal"&gt;speed&lt;/tt&gt;:&lt;ul&gt;
+&lt;li&gt;&lt;tt class="docutils literal"&gt;fast&lt;/tt&gt;&lt;/li&gt;
+&lt;li&gt;&lt;tt class="docutils literal"&gt;normal&lt;/tt&gt; (default)&lt;/li&gt;
+&lt;li&gt;&lt;tt class="docutils literal"&gt;slow&lt;/tt&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;tt class="docutils literal"&gt;opacity&lt;/tt&gt;: value from 0.0 to 1.0 (default: 0.80)&lt;/li&gt;
+&lt;li&gt;&lt;tt class="docutils literal"&gt;show_title&lt;/tt&gt;: show the title for images? (default: True)&lt;/li&gt;
+&lt;li&gt;&lt;tt class="docutils literal"&gt;counter_sep&lt;/tt&gt;: the separator for the gallery counter 1 &amp;quot;of&amp;quot; 2 (default: &amp;quot;/&amp;quot;)&lt;/li&gt;
+&lt;li&gt;&lt;tt class="docutils literal"&gt;autoplay&lt;/tt&gt;: automatically start videos? (default: True)&lt;/li&gt;
+&lt;li&gt;&lt;tt class="docutils literal"&gt;iframe_width&lt;/tt&gt;: the width of the iframe (must be percantage, default: 75%)&lt;/li&gt;
+&lt;li&gt;&lt;tt class="docutils literal"&gt;iframe_height&lt;/tt&gt;: the height of the iframe (must be percantage, default: 75%)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+</summary><category term="Plone"></category></entry></feed>

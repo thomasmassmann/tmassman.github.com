@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>it-spir.it</title><link href="/" rel="alternate"></link><link href="/feeds/hosting.atom.xml" rel="self"></link><id>/</id><updated>2012-04-03T00:00:00+02:00</updated><entry><title>Plone: Move instance to another host without downtime</title><link href="/blog/2012/04/03/plone-move-instance-to-another-host-without-downtime/" rel="alternate"></link><updated>2012-04-03T00:00:00+02:00</updated><author><name>Thomas Massmann</name></author><id>tag:,2012-04-03:blog/2012/04/03/plone-move-instance-to-another-host-without-downtime/</id><summary type="html">&lt;p&gt;At &lt;a class="reference external" href="http://propertyshelf.com"&gt;Propertyshelf&lt;/a&gt; we're hosting a lot of Plone sites. Therefor we
+use virtual machines. When sites within an instance grow, it might be necessary
+to add or extend some components, like adding more ZEO clients or caching
+(using Varnish or Squid). But what if the virtual machines don't have enough
+power to handle this? Then those Plone instances have to be migrated to
+another, more powerful machine.&lt;/p&gt;
+&lt;p&gt;The problem then is to do this without any downtime. Of course you first have
+to create a copy of the existing Plone instance on the new machine, create a
+snapshot backup of all the related data, and restore this data on the new
+machine. But what about the connected domains? The IP addresses differ (if you
+don't use one webserver that does all the domain handling). It can take up to
+several hours to update all the domains on the root DNS servers. But you want
+your sites online, with up to date data.&lt;/p&gt;
+&lt;div class="section" id="nginx-configuration-proxy-pass"&gt;
+&lt;h2&gt;Nginx configuration: proxy_pass&lt;/h2&gt;
+&lt;p&gt;We're using Nginx as webserver for several reasons (of course Apache does the
+job as well). So the following examples are taken from our Nginx config.&lt;/p&gt;
+&lt;p&gt;Imagine you have the following config on your actual server:&lt;/p&gt;
+&lt;pre class="literal-block"&gt;
+server {
+  listen ip-of-actual-server:80;
+  server_name your-domain.com;
+  location / {
+    proxy_pass http://127.0.0.1:8080/VirtualHostBase/http/your-domain.com:80/your-site/VirtualHostRoot/;
+  }
+}
+&lt;/pre&gt;
+&lt;p&gt;On your new server, add the same config. The only thing that changes is the IP
+address:&lt;/p&gt;
+&lt;pre class="literal-block"&gt;
+server {
+  listen ip-of-new-server:80;
+  server_name your-domain.com;
+  location / {
+    proxy_pass http://127.0.0.1:8080/VirtualHostBase/http/your-domain.com:80/your-site/VirtualHostRoot/;
+  }
+}
+&lt;/pre&gt;
+&lt;p&gt;Now, on your old server, adjust the config for your domain. Use the proxy_pass
+directive to point to your new server. The important part is the
+proxy_set_header directive:&lt;/p&gt;
+&lt;pre class="literal-block"&gt;
+server {
+  listen ip-of-actual-server:80;
+  server_name your-domain.com;
+  location / {
+    proxy_pass          http://your-new-server;
+    proxy_redirect      off;
+    proxy_set_header    Host $host;
+  }
+}
+&lt;/pre&gt;
+&lt;p&gt;That's it. Now you can move your instance, restart Nginx and update your DNS
+settings. It's save to remove the config on the old server after about one
+week. Then all the root DNS servers should be updated and have the new IP
+address for your domain.&lt;/p&gt;
+&lt;/div&gt;
+</summary><category term="Nginx"></category><category term="Plone"></category></entry></feed>
