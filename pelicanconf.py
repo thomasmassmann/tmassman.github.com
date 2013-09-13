@@ -7,7 +7,7 @@ SITENAME = u'it-spir.it'
 SITEURL = 'http://it-spir.it'
 
 TIMEZONE = 'Europe/Paris'
-DEFAULT_LANG = u'en'
+DEFAULT_LANG = u'de'
 
 # Feed generation is usually not desired when developing
 FEED_ALL_ATOM = None
@@ -29,6 +29,7 @@ LINKS =  (
 
 TEMPLATE_PAGES = {
     'src/blog.html': 'blog/index.html',
+    'src/imprint.html': 'impressum.html',
 }
 
 MENUITEMS = (
@@ -36,6 +37,7 @@ MENUITEMS = (
     # ('About Us', '/pages/about.html'),
     # ('Contact Us', '/pages/contact.html'),
     # ('Blog', '/blog'),
+    ('Impressum', '/impressum.html'),
 )
 
 # Social widget
